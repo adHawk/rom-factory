@@ -45,20 +45,12 @@ module ROM
 
         materialized_callables = {}
         callables.each do |_name, callable|
-          materialized_callables.merge!(callable.call(attributes, persist: false))
+          materialized_callables.update(callable.call(attributes, persist: false))
         end
+        attributes.update(materialized_callables)
 
-        attributes.merge!(materialized_callables)
         output_attributes = relation.output_schema.call(attributes)
-        attributes.merge!(output_attributes)
-
-       # associations = assoc_names
-       #   .map { |key| [key, attributes[key]] if attributes.key?(key) }
-       #   .compact
-       #   .to_h
-#
-       # attributes = relation.output_schema[attributes]
-       # attributes.update(associations)
+        attributes.update(output_attributes)
 
         model.new(attributes)
       end
