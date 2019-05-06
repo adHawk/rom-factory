@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe ROM::Factory do
   include_context 'relations'
 
@@ -9,15 +11,13 @@ RSpec.describe ROM::Factory do
 
   describe 'factory is not defined' do
     it 'raises error for persistable' do
-      expect {
-        factories[:not_defined]
-      }.to raise_error(ROM::Factory::FactoryNotDefinedError)
+      expect { factories[:not_defined] }
+        .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
 
     it 'raises error for structs' do
-      expect {
-        factories.structs[:not_defined]
-      }.to raise_error(ROM::Factory::FactoryNotDefinedError)
+      expect { factories.structs[:not_defined] }
+        .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
   end
 
@@ -512,7 +512,7 @@ RSpec.describe ROM::Factory do
       conn.drop_table?(:custom_primary_keys)
     end
 
-    it 'doesnt asume primary_key is an integer sequence' do
+    it "doesn't assume primary_key is an integer sequence" do
       factories.define(:custom_primary_key) do |f|
         f.custom_id { fake(:pokemon, :name) }
         f.name { fake(:name, :name) }
@@ -525,7 +525,7 @@ RSpec.describe ROM::Factory do
       expect(result.custom_id).to be_a(String)
     end
 
-    it 'doesnt asume primary_key is an integer sequence for a struct' do
+    it "doesn't assume primary_key is an integer sequence for a struct" do
       factories.define(:custom_primary_key) do |f|
         f.custom_id { fake(:pokemon, :name) }
         f.name { fake(:name, :name) }
@@ -749,6 +749,41 @@ RSpec.describe ROM::Factory do
         expect(result.created_at).to_not be(nil)
         expect(result.updated_at).to_not be(nil)
       end
+    end
+  end
+
+  describe 'using read types with one-to-many' do
+    before do
+      conf.relation(:capitalized_tasks) do
+        schema(:tasks, infer: true) do
+          attribute :title, ROM::SQL::Types::String.meta(
+            read: ROM::SQL::Types::String.constructor(&:upcase)
+          )
+
+          associations do
+            belongs_to :user
+          end
+        end
+      end
+    end
+
+    specify do
+      factories.define(:capitalized_task) do |f|
+        f.title 'A task'
+        f.association(:user)
+      end
+
+      factories.define(:user) do |f|
+        f.first_name 'Janis'
+        f.last_name 'Miezitis'
+        f.email 'janjiss@gmail.com'
+        f.timestamps
+      end
+
+      task = factories.structs[:capitalized_task]
+
+      expect(task.title).to eql('A TASK')
+      expect(task.user.first_name).to eql('Janis')
     end
   end
 end

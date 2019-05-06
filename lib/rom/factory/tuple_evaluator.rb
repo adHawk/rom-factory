@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom/factory/sequences'
 
 module ROM
@@ -49,6 +51,14 @@ module ROM
         attributes.merge!(materialized_callables)
         output_attributes = relation.output_schema.call(attributes)
         attributes.merge!(output_attributes)
+
+       # associations = assoc_names
+       #   .map { |key| [key, attributes[key]] if attributes.key?(key) }
+       #   .compact
+       #   .to_h
+#
+       # attributes = relation.output_schema[attributes]
+       # attributes.update(associations)
 
         model.new(attributes)
       end

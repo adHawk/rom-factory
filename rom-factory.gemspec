@@ -1,4 +1,6 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rom/factory/version'
@@ -28,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "dry-configurable", "~> 0.7"
-  spec.add_dependency "dry-core", "~> 0.3", ">= 0.3.1"
-  spec.add_dependency "rom-core", "~> 4.0"
+  spec.add_dependency "dry-core", "~> 0.4"
+  spec.add_dependency "rom-core", "~> 5.0"
   spec.add_dependency "faker", "~> 1.7"
 end
