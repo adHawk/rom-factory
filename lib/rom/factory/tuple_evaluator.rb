@@ -103,12 +103,14 @@ module ROM
       end
 
       # @api private
-      def evaluate_values(attrs, _opts)
+      def evaluate_values(attrs, opts)
         attributes.values.tsort.each_with_object({}) do |attr, h|
           deps = attr.dependency_names.map { |k| h[k] }.compact
-          result = attr.call(attrs, *deps)
+          result = attr.(attrs, *deps)
 
-          h.update(result) if result
+          if result
+            h.update(result)
+          end
         end
       end
 
@@ -128,7 +130,7 @@ module ROM
               assoc.call(parent, opts.merge(call_opts))
             end
           else
-            result = assoc.call(attrs, opts)
+            result = assoc.(attrs, opts)
             h.update(result) if result
           end
         end
@@ -136,16 +138,16 @@ module ROM
 
       # @api private
       def struct_attrs
-        relation.schema
-                .reject(&:primary_key?)
-                .map { |attr| [attr.name, nil] }
-                .to_h
-                .merge(primary_key => next_id)
+        relation.schema.
+          reject(&:primary_key?).
+          map { |attr| [attr.name, nil] }.
+          to_h.
+          merge(primary_key => next_id)
       end
 
       # @api private
       def next_id
-        sequence.call
+        sequence.()
       end
     end
   end
