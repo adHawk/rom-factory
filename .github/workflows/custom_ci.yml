@@ -54,14 +54,14 @@ jobs:
           BUNDLE_GEMFILE: gemfiles/${{matrix.appraisal}}.gemfile
         run: bundle exec rake
       - name: Download test reporter
-        if: "matrix.coverage == 'true'"
+        if: "matrix.coverage == 'true' && secrets.CC_TEST_REPORTER_ID"
         run: |
           mkdir -p tmp/
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
           chmod +x ./tmp/cc-test-reporter
           ./tmp/cc-test-reporter before-build
       - name: Send coverage results
-        if: "matrix.coverage == 'true'"
+        if: "matrix.coverage == 'true' && secrets.CC_TEST_REPORTER_ID"
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           GIT_COMMIT_SHA: ${{github.sha}}
