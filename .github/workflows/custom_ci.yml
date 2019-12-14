@@ -51,6 +51,7 @@ jobs:
       - name: Run all tests
         env:
           COVERAGE: ${{matrix.coverage}}
+          BUNDLE_GEMFILE: gemfiles/${{matrix.appraisal}}.gemfile
         run: bundle exec rake
       - name: Download test reporter
         if: "matrix.coverage == 'true'"
