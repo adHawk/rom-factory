@@ -30,6 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ["2.6.x", "2.5.x", "2.4.x"]
+        appraisal: ["faker_1", "faker_2"]
         include:
           - ruby: "2.6.x"
             coverage: "true"
@@ -44,11 +45,15 @@ jobs:
       - name: Install bundler
         run: gem install bundler
       - name: Bundle
-        run: bundle install --jobs 4 --retry 3 --without tools docs benchmarks
+        env:
+          APPRAISAL: ${{matrix.appraisal}}
+        run: |
+          export BUNDLE_GEMFILE="${GITHUB_WORKSPACE}/gemfiles/${APPRAISAL}.gemfile"
+          bundle install --jobs 4 --retry 3 --without tools docs benchmarks
       - name: Run all tests
         env:
           COVERAGE: ${{matrix.coverage}}
-        run: bundle exec appraisal rake
+        run: bundle exec rake
       - name: Download test reporter
         if: "matrix.coverage == 'true'"
         run: |
