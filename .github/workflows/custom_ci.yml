@@ -46,10 +46,8 @@ jobs:
         run: gem install bundler
       - name: Bundle
         env:
-          APPRAISAL: ${{matrix.appraisal}}
-        run: |
-          export BUNDLE_GEMFILE="${GITHUB_WORKSPACE}/gemfiles/${APPRAISAL}.gemfile"
-          bundle install --jobs 4 --retry 3 --without tools docs benchmarks
+          BUNDLE_GEMFILE: gemfiles/${{matrix.appraisal}}.gemfile
+        run: bundle install --jobs 4 --retry 3 --without tools docs benchmarks
       - name: Run all tests
         env:
           COVERAGE: ${{matrix.coverage}}
