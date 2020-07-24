@@ -126,6 +126,31 @@ module ROM::Factory
           options.fetch(:count, 1)
         end
       end
+
+      class OneToOneThrough < Core
+        def call(attrs = EMPTY_HASH, parent, persist: true)
+          return if attrs.key?(name)
+
+          struct = if persist
+                     builder.persistable.create(*traits, attrs) unless attrs[:id]
+                   else
+                     builder.struct(*traits, attrs)
+                   end
+
+          res = assoc.persist([parent], struct) if persist
+
+
+          { name => struct }
+        end
+
+        def dependency?(rel)
+          assoc.source == rel
+        end
+
+        def count
+          options.fetch(:count, 1)
+        end
+      end
     end
   end
 end
