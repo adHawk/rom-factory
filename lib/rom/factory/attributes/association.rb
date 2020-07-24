@@ -24,6 +24,11 @@ module ROM::Factory
         end
 
         # @api private
+        def through?
+          false
+        end
+
+        # @api private
         def builder
           @__builder__ ||= @builder_proc.call
         end
@@ -131,14 +136,16 @@ module ROM::Factory
         def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
 
-          struct = if persist
-                     builder.persistable.create(*traits, attrs) unless attrs[:id]
+          struct = if persist && attrs[tpk]
+                     attrs
+                   elsif persist
+                     builder.persistable.create(*traits, attrs)
                    else
                      builder.struct(*traits, attrs)
                    end
 
-          res = assoc.persist([parent], struct) if persist
 
+          res = assoc.persist([parent], struct) if persist
 
           { name => struct }
         end
@@ -147,8 +154,18 @@ module ROM::Factory
           assoc.source == rel
         end
 
+        def through?
+          true
+        end
+
+        private
+
         def count
           options.fetch(:count, 1)
+        end
+
+        def tpk
+          assoc.target.primary_key
         end
       end
     end
